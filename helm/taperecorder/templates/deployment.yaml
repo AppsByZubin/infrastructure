@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taperecorder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taperecorder
+  template:
+    metadata:
+      labels:
+        app: taperecorder
+    spec:
+      containers:
+      - name: taperecorder
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+        env:
+        {{- range $k, $v := .Values.env }}
+        - name: {{ $k }}
+          value: "{{ $v }}"
+        {{- end }}
+
+        envFrom:
+        - secretRef:
+            name: taperecorder-secrets
+
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: taperecorder-data
