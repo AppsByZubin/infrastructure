@@ -1,42 +1,52 @@
-# Project Title
+# Infrastructure To setup projects
 
-<!-- Add badges for build status, version, license, etc., using a service like Shields.io. -->
-![example badge](img.shields.io)
+## VM setup Prod/Dev
 
-## Description
-
-<!-- Provide a brief, high-level overview of the project and its purpose. What does it do? Why was it created? -->
-
-This project helps users manage tasks efficiently by providing a simple, command-line interface for creating, viewing, and deleting tasks.
-
-## Getting Started
-
-<!-- Explain what is needed to run the project and how to install/set it up. -->
-
-### Dependencies
-
-*   Node.js (v14 or newer)
-*   npm (Node Package Manager)
-
-### Installation
-
-1.  Clone the repository:
-    ```bash
-    git clone github.com
-    ```
-2.  Navigate to the project directory:
-    ```bash
-    cd yourproject
-    ```
-3.  Install the required dependencies:
-    ```bash
-    npm install
-    ```
-
-## Usage
-
-<!-- Provide examples and instructions on how to use the project. Include code blocks for commands or show screenshots if applicable. -->
-
-To start the application, run the following command:
+execute setup script
 ```bash
-npm start
+./dev_vm_setup.sh
+```
+### dependencies that got installed
+install Docker, k3s, kubectl, helm
+install ArgoCD server into cluster
+install ArgoCD CLI onto VM
+set kubeconfig
+create namespaces
+
+## Argo setup
+Create the project helm under infrastructure/helm/
+
+```
+argocd repo add https://github.com/AppsByZubin/infrastructure.git \
+  --username <YOUR_GITHUB_USERNAME> \
+  --password <YOUR_GITHUB_PAT> \
+  --name infrastructure
+```
+
+deploy argocd app
+```
+cat <<'EOF' | kubectl apply -f -
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: taperecorder
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/AppsByZubin/infrastructure.git
+    targetRevision: main
+    path: helm/taperecorder    # <--- change this if necessary
+    helm:
+      valueFiles:
+        - values.yaml          # or values-dev.yaml / values-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: botspace
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+EOF
+
+```
