@@ -1,6 +1,6 @@
 image:
   repository: docker.io/bizzkpm/taperecorder
-  tag: "sha-6d14884"
+  tag: "sha-8a347ca"
   pullPolicy: IfNotPresent
 
 env:
