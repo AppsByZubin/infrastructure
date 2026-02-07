@@ -1,12 +1,12 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1                       # CHANGED: Was apps/v1
+kind: Job                                  # CHANGED: Was Deployment
 metadata:
   name: taperecorder
+  labels:                                  # Added labels for good practice
+    app: taperecorder
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: taperecorder
+  # Optional: Delete the job 24 hours after completion to clean up
+  # ttlSecondsAfterFinished: 86400
   template:
     metadata:
       labels:
@@ -38,3 +38,6 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: taperecorder-data
+
+      # NEW: Required for Jobs. Stops the loop when the script finishes.
+      restartPolicy: OnFailure
