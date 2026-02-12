@@ -4,6 +4,9 @@ metadata:
   name: taperecorder
   labels:                                  # Added labels for good practice
     app: taperecorder
+  annotations:
+    # Tells ArgoCD: "If this changes, delete the old one and create a new one"
+    argocd.argoproj.io/sync-options: Replace=true
 spec:
   # Optional: Delete the job 24 hours after completion to clean up
   # ttlSecondsAfterFinished: 86400
