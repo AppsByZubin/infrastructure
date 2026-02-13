@@ -1,14 +1,13 @@
-apiVersion: batch/v1                       # CHANGED: Was apps/v1
-kind: Job                                  # CHANGED: Was Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: taperecorder
-  labels:                                  # Added labels for good practice
+  labels:
     app: taperecorder
+  # FIXED: Moved 'annotations' to be a sibling of 'labels', not inside it
   annotations:
-    # Tells ArgoCD: "If this changes, delete the old one and create a new one"
     argocd.argoproj.io/sync-options: Replace=true
 spec:
-  # Optional: Delete the job 24 hours after completion to clean up
   # ttlSecondsAfterFinished: 86400
   template:
     metadata:
@@ -23,6 +22,7 @@ spec:
         env:
         {{- range $k, $v := .Values.env }}
         - name: {{ $k }}
+          # FIXED: 'value' is now perfectly aligned with 'name' (same vertical line)
           value: "{{ $v }}"
         {{- end }}
 
@@ -42,5 +42,4 @@ spec:
         persistentVolumeClaim:
           claimName: taperecorder-data
 
-      # NEW: Required for Jobs. Stops the loop when the script finishes.
       restartPolicy: OnFailure
