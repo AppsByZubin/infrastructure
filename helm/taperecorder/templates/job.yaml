@@ -2,43 +2,46 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: taperecorder
+  namespace: {{ .Release.Namespace }}
   labels:
     app: taperecorder
   annotations:
     argocd.argoproj.io/sync-options: Replace=true
 spec:
+  backoffLimit: 0
   # Optional: Delete the job 24 hours after completion
   # ttlSecondsAfterFinished: 86400
+
   template:
     metadata:
       labels:
         app: taperecorder
     spec:
+      restartPolicy: OnFailure
+
       containers:
-      - name: taperecorder
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: taperecorder
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
 
-        env:
-        {{- range $k, $v := .Values.env }}
-        - name: {{ $k }}
-          value: "{{ $v }}"
-        {{- end }}
+          env:
+            {{- range $k, $v := .Values.env }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+            {{- end }}
 
-        envFrom:
-        - secretRef:
-            name: taperecorder-secrets
+          envFrom:
+            - secretRef:
+                name: taperecorder-secrets
 
-        volumeMounts:
-        - name: data
-          mountPath: /app/data
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
 
-        resources:
-{{ toYaml .Values.resources | indent 10 }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
 
       volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: taperecorder-data
-
-      restartPolicy: OnFailure
+        - name: data
+          persistentVolumeClaim:
+            claimName: taperecorder-data
