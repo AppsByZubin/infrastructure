@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "botsquadron.configMapName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "botsquadron.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: botsquadron
+data:
+  {{- $env := .Values.env }}
+  {{- range $key, $value := omit $env "upstox_api_access_token" }}
+  {{- $valueString := toString $value }}
+  {{- if contains "\n" $valueString }}
+  {{ $key }}: |-
+{{ $valueString | indent 4 }}
+  {{- else }}
+  {{ $key }}: {{ $valueString | quote }}
+  {{- end }}
+  {{- end }}
+  upstox_api_access_token: {{ default (index $env "UPSTOX_API_ACCESS_TOKEN") (index $env "upstox_api_access_token") | quote }}
