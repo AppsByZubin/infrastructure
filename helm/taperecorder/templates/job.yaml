@@ -27,21 +27,27 @@ spec:
           env:
             {{- range $k, $v := .Values.env }}
             - name: {{ $k }}
-              value: "{{ $v }}"
+              value: {{ $v | toString | quote }}
             {{- end }}
 
+          {{- if and .Values.secret .Values.secret.enabled }}
           envFrom:
             - secretRef:
-                name: taperecorder-secrets
+                name: {{ .Values.secret.name | default "taperecorder-secrets" }}
+          {{- end }}
 
+          {{- if and .Values.pvc .Values.pvc.enabled }}
           volumeMounts:
             - name: data
               mountPath: /app/data
+          {{- end }}
 
           resources:
 {{ toYaml .Values.resources | indent 12 }}
 
+      {{- if and .Values.pvc .Values.pvc.enabled }}
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: taperecorder-data
+      {{- end }}

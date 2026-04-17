@@ -8,17 +8,28 @@ image:
 configMap:
   name: botsquadron-env
 
+secret:
+  enabled: true
+  create: true
+  name: botsquadron-secrets
+
+secretEnv:
+  DATABASE_URL: postgresql://omsuser:password123@postgres-oms.botspace.svc.cluster.local:5432/omsdb?sslmode=disable
+  UPSTOX_API_ACCESS_TOKEN: ""
+  upstox_api_access_token: ""
+  upstox_sandbox_api_access_token: ""
+
 env:
   TZ: Asia/Kolkata
-  NATS_URL: nats://nats:4222
+  NATS_URL: ""
+  NATS_CONNECT_RETRY_MAX: "0"
+  NATS_CONNECT_RETRY_WAIT_SEC: "2"
+  NATS_CONNECT_TIMEOUT_SEC: "5"
 
   APP_MODE: mock
   APP_TIMEZONE: Asia/Kolkata
   ACCOUNT_INITIAL_CASH: "0"
 
-  UPSTOX_API_ACCESS_TOKEN: ""
-  upstox_api_access_token: ""
-  upstox_sandbox_api_access_token: ""
   UPSTOX_API_BASE_URL: https://api.upstox.com
   UPSTOX_API_VERSION: "2.0"
   UPSTOX_ORDER_PLACE_PATH: /v3/order/place
@@ -29,7 +40,6 @@ env:
   UPSTOX_INSTRUMENT_KEY: "NSE_INDEX|Nifty 50"
   UPSTOX_MODE: ltpc
 
-  DATABASE_URL: postgresql://omsuser:password123@postgres-oms.botspace.svc.cluster.local:5432/omsdb?sslmode=disable
   ORDERSYSTEM_HTTP_ADDR: :8081
   ORDERSYSTEM_REQUEST_TIMEOUT: 15s
   ORDERSYSTEM_SL_POLL_INTERVAL: 10s
@@ -38,9 +48,9 @@ env:
   ORDERSYSTEM_UPSTOX_STATUS_REQUEST_GAP: 750ms
   ORDERSYSTEM_UPSTOX_STATUS_CACHE_TTL: 5s
 
-  ORDERSYSTEM_BASE_URL: http://botsquadron-ordersystem:8081
-  ORDER_SYSTEM_BASE_URL: http://botsquadron-ordersystem:8081
-  OMS_BASE_URL: http://botsquadron-ordersystem:8081
+  ORDERSYSTEM_BASE_URL: ""
+  ORDER_SYSTEM_BASE_URL: ""
+  OMS_BASE_URL: ""
   ORDERSYSTEM_TIMEOUT_SEC: "15"
   ORDER_SYSTEM_TIMEOUT_SEC: "15"
   OMS_TIMEOUT_SEC: "15"
@@ -116,6 +126,26 @@ env:
   PYTHONUNBUFFERED: "1"
   PIP_NO_CACHE_DIR: "1"
   PYTHONPATH: /app/bots/solobot
+
+nats:
+  enabled: true
+  nameOverride: ""
+  replicas: 1
+  image:
+    repository: nats
+    tag: 2.10-alpine
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    clientPort: 4222
+    monitoringPort: 8222
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
 
 ordersystem:
   enabled: true

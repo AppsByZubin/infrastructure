@@ -30,6 +30,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "botsquadron.configMapName" . }}
+            {{- if and .Values.secret .Values.secret.enabled }}
+            - secretRef:
+                name: {{ include "botsquadron.secretName" . }}
+            {{- end }}
           resources:
 {{ toYaml .Values.marketfeeder.resources | indent 12 }}
 {{- end }}
