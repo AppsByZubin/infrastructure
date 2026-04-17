@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "botsquadron.configMapName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "botsquadron.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: botsquadron
+data:
+  {{- $env := .Values.env | default dict }}
+  {{- range $key, $value := omit $env "DATABASE_URL" "UPSTOX_API_ACCESS_TOKEN" "upstox_api_access_token" "upstox_sandbox_api_access_token" "NATS_URL" "ORDERSYSTEM_BASE_URL" "ORDER_SYSTEM_BASE_URL" "OMS_BASE_URL" }}
+  {{- $valueString := toString $value }}
+  {{- if contains "\n" $valueString }}
+  {{ $key }}: |-
+{{ $valueString | indent 4 }}
+  {{- else }}
+  {{ $key }}: {{ $valueString | quote }}
+  {{- end }}
+  {{- end }}
+  NATS_URL: {{ include "botsquadron.natsURL" . | quote }}
+  ORDERSYSTEM_BASE_URL: {{ default (include "botsquadron.ordersystemURL" .) (index $env "ORDERSYSTEM_BASE_URL") | quote }}
+  ORDER_SYSTEM_BASE_URL: {{ default (include "botsquadron.ordersystemURL" .) (index $env "ORDER_SYSTEM_BASE_URL") | quote }}
+  OMS_BASE_URL: {{ default (include "botsquadron.ordersystemURL" .) (index $env "OMS_BASE_URL") | quote }}
