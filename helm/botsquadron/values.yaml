@@ -14,7 +14,8 @@ secret:
   name: botsquadron-secrets
 
 secretEnv:
-  DATABASE_URL: postgresql://omsuser:password123@postgres-oms.botspace.svc.cluster.local:5432/omsdb?sslmode=disable
+  DATABASE_URL: 
+    postgresql://omsuser:password123@postgres-oms.botspace.svc.cluster.local:5432/omsdb?sslmode=disable
   UPSTOX_API_ACCESS_TOKEN: ""
   upstox_api_access_token: ""
   upstox_sandbox_api_access_token: ""
@@ -151,8 +152,8 @@ ordersystem:
   enabled: true
   replicas: 1
   image:
-    repository: ""
-    tag: ""
+    repository: "docker.io/bizzkpm/botsquadimage"
+    tag: "ordersystem-${IMAGE_TAG}"
   service:
     type: ClusterIP
     port: 8081
@@ -168,8 +169,8 @@ marketfeeder:
   enabled: true
   replicas: 1
   image:
-    repository: ""
-    tag: ""
+    repository: "docker.io/bizzkpm/botsquadimage"
+    tag: "marketfeeder-${IMAGE_TAG}"
   resources:
     requests:
       cpu: 100m
@@ -181,20 +182,20 @@ marketfeeder:
 solobot:
   enabled: true
   image:
-    repository: ""
-    tag: ""
+    repository: "docker.io/bizzkpm/botsquadimage"
+    tag: "solobot-${IMAGE_TAG}"
   backoffLimit: 0
   restartPolicy: OnFailure
-  ttlSecondsAfterFinished: null
+  ttlSecondsAfterFinished:
   annotations:
     argocd.argoproj.io/sync-options: Replace=true
   args:
-    - --instruments
-    - nifty50
-    - --strategy
-    - pcr_vwap_ema_orb
-    - --level
-    - mock
+  - --instruments
+  - nifty50
+  - --strategy
+  - pcr_vwap_ema_orb
+  - --level
+  - mock
   resources:
     requests:
       cpu: 250m
