@@ -153,7 +153,7 @@ ordersystem:
   replicas: 1
   image:
     repository: "docker.io/bizzkpm/botsquadimage"
-    tag: "ordersystem-4b44a3d"
+    tag: "ordersystem-76277fc"
   service:
     type: ClusterIP
     port: 8081
@@ -170,7 +170,7 @@ marketfeeder:
   replicas: 1
   image:
     repository: "docker.io/bizzkpm/botsquadimage"
-    tag: "marketfeeder-4b44a3d"
+    tag: "marketfeeder-76277fc"
   resources:
     requests:
       cpu: 100m
@@ -183,7 +183,7 @@ solobot:
   enabled: true
   image:
     repository: "docker.io/bizzkpm/botsquadimage"
-    tag: "solobot-4b44a3d"
+    tag: "solobot-76277fc"
   backoffLimit: 0
   restartPolicy: OnFailure
   ttlSecondsAfterFinished:
