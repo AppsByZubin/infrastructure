@@ -23,6 +23,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/part-of: botsquadron
     spec:
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 8 }}
+{{- end }}
       containers:
         - name: ordersystem
           image: "{{ include "botsquadron.image" (dict "root" . "service" "ordersystem" "image" .Values.ordersystem.image) }}"

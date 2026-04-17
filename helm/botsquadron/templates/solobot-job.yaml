@@ -26,6 +26,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/part-of: botsquadron
     spec:
+{{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 8 }}
+{{- end }}
       restartPolicy: {{ .Values.solobot.restartPolicy }}
       containers:
         - name: solobot
