@@ -1,6 +1,0 @@
-apiVersion: v2
-name: botsquadron
-description: BotSquadron trading bot platform
-type: application
-version: 0.1.1
-appVersion: "1.0"
