@@ -18,7 +18,8 @@ spec:
       labels:
         app: taperecorder
     spec:
-      restartPolicy: OnFailure
+      # Keep failed Job pods around so logs remain available after a quick crash.
+      restartPolicy: Never
 
       containers:
         - name: taperecorder
