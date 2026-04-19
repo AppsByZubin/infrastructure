@@ -54,6 +54,9 @@ spec:
     helm:
       valueFiles:
         - values.yaml          # or values-dev.yaml / values-prod.yaml
+      parameters:
+        - name: restartRevision
+          value: $ARGOCD_APP_REVISION
   destination:
     server: https://kubernetes.default.svc
     namespace: botspace

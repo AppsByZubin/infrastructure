@@ -3,6 +3,10 @@ image:
   tag: "sha-7a783b1"
   pullPolicy: IfNotPresent
 
+# ArgoCD should set this to $ARGOCD_APP_REVISION so every pushed commit
+# changes the rendered Job manifest and reruns the Job.
+restartRevision: ""
+
 env:
   PROJECT_ROOT: /app
   DATA_ROOT: /app/data

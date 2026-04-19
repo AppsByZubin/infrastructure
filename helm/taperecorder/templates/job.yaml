@@ -8,6 +8,7 @@ metadata:
   annotations:
     # Recreate the Kubernetes Job on every ArgoCD sync so a new push reruns it.
     argocd.argoproj.io/sync-options: Force=true,Replace=true
+    appsbyzubin.com/restart-revision: {{ .Values.restartRevision | default .Chart.Version | quote }}
 spec:
   backoffLimit: 0
   # Optional: Delete the job 24 hours after completion
