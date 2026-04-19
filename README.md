@@ -22,6 +22,8 @@ The repo currently carries Helm charts for:
 
 - `helm/taperecorder`: market data recorder Job and optional PVC
 
+The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
+
 Runtime credentials are expected under each chart's `secretEnv` values. Keep real tokens and access keys in a private values file or your GitOps secret mechanism rather than committing them to this repo. To use a pre-created Kubernetes Secret, set `secret.create=false` and keep `secret.enabled=true`.
 
 ```bash
