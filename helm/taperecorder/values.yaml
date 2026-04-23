@@ -1,6 +1,6 @@
 image:
   repository: docker.io/bizzkpm/taperecorder
-  tag: "sha-5ebcae9"
+  tag: "sha-99e478d"
   pullPolicy: IfNotPresent
 
 # ArgoCD should set this to $ARGOCD_APP_REVISION so every pushed commit
