@@ -1,0 +1,88 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: reporter
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: reporter
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  {{- if .Values.timeZone }}
+  timeZone: {{ .Values.timeZone | quote }}
+  {{- end }}
+  suspend: {{ .Values.suspend | default false }}
+  concurrencyPolicy: {{ .Values.concurrencyPolicy | default "Forbid" }}
+  successfulJobsHistoryLimit: {{ .Values.successfulJobsHistoryLimit | default 3 }}
+  failedJobsHistoryLimit: {{ .Values.failedJobsHistoryLimit | default 3 }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.backoffLimit | default 1 }}
+      {{- if .Values.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ .Values.ttlSecondsAfterFinished }}
+      {{- end }}
+      template:
+        metadata:
+          labels:
+            app: reporter
+          {{- with .Values.podAnnotations }}
+          annotations:
+{{ toYaml . | indent 12 }}
+          {{- end }}
+        spec:
+          restartPolicy: {{ .Values.restartPolicy | default "Never" }}
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+{{ toYaml . | indent 12 }}
+          {{- end }}
+          containers:
+            - name: reporter
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              workingDir: {{ .Values.workingDir | default "/app" | quote }}
+              {{- with .Values.command }}
+              command:
+                {{- range . }}
+                - {{ . | quote }}
+                {{- end }}
+              {{- end }}
+              {{- with .Values.args }}
+              args:
+                {{- range . }}
+                - {{ . | quote }}
+                {{- end }}
+              {{- end }}
+              {{- with .Values.env }}
+              env:
+                {{- range $k, $v := . }}
+                - name: {{ $k }}
+                  value: {{ $v | quote }}
+                {{- end }}
+              {{- end }}
+              envFrom:
+                - secretRef:
+                    name: {{ .Values.secret.name | quote }}
+              {{- if and .Values.pvc .Values.pvc.enabled }}
+              volumeMounts:
+                - name: reporter-data
+                  mountPath: {{ .Values.pvc.mountPath | default "/app/output" | quote }}
+              {{- end }}
+              resources:
+{{ toYaml .Values.resources | indent 16 }}
+          {{- if and .Values.pvc .Values.pvc.enabled }}
+          volumes:
+            - name: reporter-data
+              persistentVolumeClaim:
+                claimName: {{ .Values.pvc.claimName | default "reporter-data" | quote }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+{{ toYaml . | indent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+{{ toYaml . | indent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+{{ toYaml . | indent 12 }}
+          {{- end }}

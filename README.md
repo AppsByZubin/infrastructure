@@ -21,13 +21,16 @@ Shared infrastructure Helm charts live under `infrastructure/helm/`. Project-own
 The repo currently carries Helm charts for:
 
 - `helm/taperecorder`: market data recorder Job and optional PVC
+- `helm/reporter`: daily trade report CronJob scheduled for 4 PM IST
 
 The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
 
-Runtime credentials are expected under each chart's `secretEnv` values. Keep real tokens and access keys in a private values file or your GitOps secret mechanism rather than committing them to this repo. To use a pre-created Kubernetes Secret, set `secret.create=false` and keep `secret.enabled=true`.
+The `reporter` chart expects runtime credentials in a Kubernetes Secret named `reporter-secrets` by default. Keep real tokens, access keys, and Gmail app passwords in your GitOps secret mechanism rather than committing them to this repo. You can also set `secret.create=true` only when the rendered values are managed safely, such as through SOPS, SealedSecrets, or ExternalSecrets.
 
 ```bash
 helm lint helm/taperecorder
+helm lint helm/reporter
+helm template reporter helm/reporter
 ```
 
 ```
@@ -43,20 +46,17 @@ cat <<'EOF' | kubectl apply -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: taperecorder
+  name: reporter
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/AppsByZubin/infrastructure.git
     targetRevision: main
-    path: helm/taperecorder    # <--- change this if necessary
+    path: helm/reporter
     helm:
       valueFiles:
-        - values.yaml          # or values-dev.yaml / values-prod.yaml
-      parameters:
-        - name: restartRevision
-          value: $ARGOCD_APP_REVISION
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: botspace

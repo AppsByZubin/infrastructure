@@ -1,0 +1,12 @@
+{{- if and .Values.pvc .Values.pvc.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.pvc.claimName | default "reporter-data" | quote }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.size | default "1Gi" }}
+{{- end }}
