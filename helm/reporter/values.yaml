@@ -26,11 +26,7 @@ env:
   TZ: Asia/Kolkata
   PYTHONUNBUFFERED: "1"
   REPORTER_LOG_DIR: /app/output/logs
-  SMTP_HOST: smtp.gmail.com
-  SMTP_USE_SSL: "true"
-  SMTP_PORT: "465"
-  SMTP_FORCE_IPV4: "true"
-  SMTP_TIMEOUT_SECONDS: "30"
+  RESEND_API_TIMEOUT_SECONDS: "30"
 
 secret:
   # Create this Secret out-of-band, or set create=true and provide values below
@@ -45,7 +41,7 @@ secret:
     DO_S3_ENDPOINT_URL: ""
     EMAIL_TO: ""
     EMAIL_FROM: ""
-    GMAIL_APP_PASSWORD: ""
+    RESEND_API_KEY: ""
 
 resources:
   requests:
