@@ -21,11 +21,26 @@ Shared infrastructure Helm charts live under `infrastructure/helm/`. Project-own
 The repo currently carries Helm charts for:
 
 - `helm/taperecorder`: market data recorder Job and optional PVC
-- `helm/reporter`: daily trade report CronJob scheduled for 10 PM IST
+- `helm/reporter`: daily trade report CronJob scheduled for 10:20 PM IST
 
 The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
 
 The `reporter` chart expects runtime credentials in a Kubernetes Secret named `reporter-secrets` by default. Keep real tokens, access keys, and Gmail app passwords in your GitOps secret mechanism rather than committing them to this repo. You can also set `secret.create=true` only when the rendered values are managed safely, such as through SOPS, SealedSecrets, or ExternalSecrets.
+
+Create the prod secret out-of-band before running the CronJob:
+```bash
+kubectl -n botspace get secret reporter-secrets
+
+kubectl -n botspace create secret generic reporter-secrets \
+  --from-literal=DO_S3_REGION="$DO_S3_REGION" \
+  --from-literal=DO_S3_ACCESS_KEY_ID="$DO_S3_ACCESS_KEY_ID" \
+  --from-literal=DO_S3_SECRET_ACCESS_KEY="$DO_S3_SECRET_ACCESS_KEY" \
+  --from-literal=DO_S3_BUCKET_NAME="$DO_S3_BUCKET_NAME" \
+  --from-literal=DO_S3_ENDPOINT_URL="$DO_S3_ENDPOINT_URL" \
+  --from-literal=EMAIL_TO="$EMAIL_TO" \
+  --from-literal=EMAIL_FROM="$EMAIL_FROM" \
+  --from-literal=GMAIL_APP_PASSWORD="$GMAIL_APP_PASSWORD"
+```
 
 ```bash
 helm lint helm/taperecorder
