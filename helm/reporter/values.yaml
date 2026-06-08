@@ -4,7 +4,7 @@ image:
   pullPolicy: IfNotPresent
 
 # Run every day at 10:20 PM IST. Kubernetes 1.27+ supports timeZone on CronJobs.
-schedule: "20 22 * * *"
+schedule: "35 22 * * *"
 timeZone: "Asia/Kolkata"
 suspend: false
 concurrencyPolicy: Forbid
