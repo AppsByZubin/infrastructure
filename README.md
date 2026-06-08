@@ -21,7 +21,7 @@ Shared infrastructure Helm charts live under `infrastructure/helm/`. Project-own
 The repo currently carries Helm charts for:
 
 - `helm/taperecorder`: market data recorder Job and optional PVC
-- `helm/reporter`: daily trade report CronJob scheduled for 4 PM IST
+- `helm/reporter`: daily trade report CronJob scheduled for 10 PM IST
 
 The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
 
@@ -42,28 +42,5 @@ argocd repo add https://github.com/AppsByZubin/infrastructure.git \
 
 deploy argocd app
 ```
-cat <<'EOF' | kubectl apply -f -
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: reporter
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/AppsByZubin/infrastructure.git
-    targetRevision: main
-    path: helm/reporter
-    helm:
-      valueFiles:
-        - values.yaml
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: botspace
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-EOF
-
+kubectl apply -f argocd/applications/reporter.yaml
 ```
