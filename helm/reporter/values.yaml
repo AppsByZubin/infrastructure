@@ -29,6 +29,7 @@ env:
   SMTP_HOST: smtp.gmail.com
   SMTP_USE_SSL: "true"
   SMTP_PORT: "465"
+  SMTP_FORCE_IPV4: "true"
   SMTP_TIMEOUT_SECONDS: "30"
 
 secret:
