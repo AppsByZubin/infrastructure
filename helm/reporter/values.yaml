@@ -4,7 +4,7 @@ image:
   pullPolicy: IfNotPresent
 
 # Run every day at 10:20 PM IST. Kubernetes 1.27+ supports timeZone on CronJobs.
-schedule: "36 23 * * *"
+schedule: "56 23 * * *"
 timeZone: "Asia/Kolkata"
 suspend: false
 concurrencyPolicy: Forbid
@@ -27,6 +27,7 @@ env:
   PYTHONUNBUFFERED: "1"
   REPORTER_LOG_DIR: /app/output/logs
   RESEND_API_TIMEOUT_SECONDS: "30"
+  RESEND_USER_AGENT: reporter/1.0
 
 secret:
   # Create this Secret out-of-band, or set create=true and provide values below
