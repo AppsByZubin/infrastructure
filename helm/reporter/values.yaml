@@ -1,6 +1,6 @@
 image:
   repository: docker.io/bizzkpm/reporter
-  tag: "sha-73ec1b7"
+  tag: "sha-b5af623"
   pullPolicy: IfNotPresent
 
 # Run every day at 10:20 PM IST. Kubernetes 1.27+ supports timeZone on CronJobs.
