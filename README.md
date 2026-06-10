@@ -25,9 +25,12 @@ The repo currently carries Helm charts for:
 
 The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
 
-The `reporter` chart expects runtime credentials in a Kubernetes Secret named `reporter-secrets` by default. Keep real tokens, access keys, and email API keys in your GitOps secret mechanism rather than committing them to this repo. You can also set `secret.create=true` only when the rendered values are managed safely, such as through SOPS, SealedSecrets, or ExternalSecrets.
+The `reporter` chart expects runtime credentials in a Kubernetes Secret named `reporter-secrets` by default. Keep real tokens, access keys, and Gmail app passwords in your GitOps secret mechanism rather than committing them to this repo. You can also set `secret.create=true` only when the rendered values are managed safely, such as through SOPS, SealedSecrets, or ExternalSecrets.
 
 Create the prod secret out-of-band before running the CronJob:
+
+`EMAIL_TO` can contain one recipient or a comma-separated list, for example `a@a.com,b@b.com`.
+
 ```bash
 kubectl -n botspace get secret reporter-secrets
 
@@ -39,7 +42,7 @@ kubectl -n botspace create secret generic reporter-secrets \
   --from-literal=DO_S3_ENDPOINT_URL="$DO_S3_ENDPOINT_URL" \
   --from-literal=EMAIL_TO="$EMAIL_TO" \
   --from-literal=EMAIL_FROM="$EMAIL_FROM" \
-  --from-literal=RESEND_API_KEY="$RESEND_API_KEY"
+  --from-literal=GMAIL_APP_PASSWORD="$GMAIL_APP_PASSWORD"
 ```
 
 ```bash
