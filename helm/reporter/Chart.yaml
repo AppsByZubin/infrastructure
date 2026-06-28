@@ -1,6 +1,6 @@
 apiVersion: v2
 name: reporter
-description: Daily trade report generator and Gmail SMTP sender
+description: Daily trade report generator and Slack uploader
 type: application
-version: 0.1.10
+version: 0.1.11
 appVersion: "1.0"

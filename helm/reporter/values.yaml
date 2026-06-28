@@ -3,8 +3,8 @@ image:
   tag: "sha-b5af623"
   pullPolicy: IfNotPresent
 
-# Run every day at 10:20 PM IST. Kubernetes 1.27+ supports timeZone on CronJobs.
-schedule: "56 23 * * *"
+# Run every day at 3:45 PM IST. Kubernetes 1.27+ supports timeZone on CronJobs.
+schedule: "45 15 * * *"
 timeZone: "Asia/Kolkata"
 suspend: false
 concurrencyPolicy: Forbid
@@ -20,17 +20,18 @@ command:
   - reporter.py
 
 args:
-  - --sendmail
+  - --slack
 
 env:
   TZ: Asia/Kolkata
   PYTHONUNBUFFERED: "1"
   REPORTER_LOG_DIR: /app/output/logs
-  SMTP_HOST: smtp.gmail.com
-  SMTP_USE_SSL: "true"
-  SMTP_PORT: "465"
-  SMTP_FORCE_IPV4: "true"
-  SMTP_TIMEOUT_SECONDS: "30"
+  REPORTER_BOT_TIMEOUT_SECONDS: "120"
+  SLACK_REPORT_UPLOAD_STRICT: "true"
+  SLACK_REPORT_INITIAL_COMMENT: "Production cumulative report"
+  UPSTOX_API_BASE_URL: https://api.upstox.com
+  UPSTOX_ORDER_DETAILS_PATH: /v2/order/details
+  UPSTOX_API_TIMEOUT_SECONDS: "30"
 
 secret:
   # Create this Secret out-of-band, or set create=true and provide values below
@@ -43,6 +44,9 @@ secret:
     DO_S3_SECRET_ACCESS_KEY: ""
     DO_S3_BUCKET_NAME: ""
     DO_S3_ENDPOINT_URL: ""
+    SLACK_BOT_TOKEN: ""
+    SLACK_CHANNEL_ID: ""
+    UPSTOX_API_ACCESS_TOKEN: ""
     EMAIL_TO: ""
     EMAIL_FROM: ""
     GMAIL_APP_PASSWORD: ""
@@ -56,7 +60,7 @@ resources:
     memory: "512Mi"
 
 # Enable this only if you want reports/logs to survive after the CronJob pod is gone.
-# The app emails reports by default, so persistent storage is usually unnecessary.
+# The app uploads reports to Slack by default, so persistent storage is usually unnecessary.
 pvc:
   enabled: false
   claimName: reporter-data
