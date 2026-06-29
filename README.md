@@ -21,7 +21,7 @@ Shared infrastructure Helm charts live under `infrastructure/helm/`. Project-own
 The repo currently carries Helm charts for:
 
 - `helm/taperecorder`: market data recorder Job and optional PVC
-- `helm/reporter`: daily trade report CronJob scheduled for 7:00 PM IST
+- `helm/reporter`: daily trade report CronJob scheduled for 8:17 PM IST
 
 The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
 

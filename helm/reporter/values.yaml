@@ -3,8 +3,8 @@ image:
   tag: "sha-3a4de3d"
   pullPolicy: IfNotPresent
 
-# Run every day at 7:00 PM IST. Kubernetes 1.27+ supports timeZone on CronJobs.
-schedule: "0 19 * * *"
+# Run every day at 8:17 PM IST. Kubernetes 1.27+ supports timeZone on CronJobs.
+schedule: "17 20 * * *"
 timeZone: "Asia/Kolkata"
 suspend: false
 concurrencyPolicy: Forbid
