@@ -28,6 +28,7 @@ env:
   REPORTER_LOG_DIR: /app/output/logs
   REPORTER_BOT_TIMEOUT_SECONDS: "120"
   SLACK_REPORT_UPLOAD_STRICT: "true"
+  SLACK_REPORT_THREAD_TS: "parent-message-ts"
   SLACK_REPORT_INITIAL_COMMENT: "Production cumulative report"
   UPSTOX_API_BASE_URL: https://api.upstox.com
   UPSTOX_ORDER_DETAILS_PATH: /v2/order/details
