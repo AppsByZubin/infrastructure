@@ -25,9 +25,10 @@ The repo currently carries Helm charts for:
 
 The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
 
-The `reporter` chart expects runtime credentials in a Kubernetes Secret named `reporter-secrets` by default. Keep real tokens, access keys, and optional email credentials in your GitOps secret mechanism rather than committing them to this repo. You can also set `secret.create=true` only when the rendered values are managed safely, such as through SOPS, SealedSecrets, or ExternalSecrets.
-
-Create the prod secret out-of-band before running the CronJob:
+The `reporter` and `taperecorder` charts pass most runtime values directly
+through their `env:` blocks in `values.yaml`. The reporter Slack delivery values
+are the exception: `SLACK_BOT_TOKEN` and `SLACK_CHANNEL_ID` come from a
+Kubernetes Secret named `reporter-slack-secrets`.
 
 The reporter CronJob uploads to Slack by default. `SLACK_BOT_TOKEN` needs the
 Slack `files:write` scope, and the app must be invited to `SLACK_CHANNEL_ID`.
@@ -36,22 +37,27 @@ hydrate production order rows from Upstox order details. Mock reports do not use
 Upstox and write `<YYYYMMDD>_mock_report.xlsx`.
 
 ```bash
-kubectl -n botspace get secret reporter-secrets
-
-kubectl -n botspace create secret generic reporter-secrets \
-  --from-literal=DO_S3_REGION="$DO_S3_REGION" \
-  --from-literal=DO_S3_ACCESS_KEY_ID="$DO_S3_ACCESS_KEY_ID" \
-  --from-literal=DO_S3_SECRET_ACCESS_KEY="$DO_S3_SECRET_ACCESS_KEY" \
-  --from-literal=DO_S3_BUCKET_NAME="$DO_S3_BUCKET_NAME" \
-  --from-literal=DO_S3_ENDPOINT_URL="$DO_S3_ENDPOINT_URL" \
+kubectl -n botspace create secret generic reporter-slack-secrets \
   --from-literal=SLACK_BOT_TOKEN="$SLACK_BOT_TOKEN" \
   --from-literal=SLACK_CHANNEL_ID="$SLACK_CHANNEL_ID" \
-  --from-literal=UPSTOX_API_ACCESS_TOKEN="$UPSTOX_API_ACCESS_TOKEN"
+  --dry-run=client -o yaml | kubectl apply -f -
+
+helm upgrade --install reporter helm/reporter \
+  --namespace botspace \
+  --set-string env.DO_S3_REGION="$DO_S3_REGION" \
+  --set-string env.DO_S3_ACCESS_KEY_ID="$DO_S3_ACCESS_KEY_ID" \
+  --set-string env.DO_S3_SECRET_ACCESS_KEY="$DO_S3_SECRET_ACCESS_KEY" \
+  --set-string env.DO_S3_BUCKET_NAME="$DO_S3_BUCKET_NAME" \
+  --set-string env.DO_S3_ENDPOINT_URL="$DO_S3_ENDPOINT_URL" \
+  --set-string env.UPSTOX_API_ACCESS_TOKEN="$UPSTOX_API_ACCESS_TOKEN"
 ```
 
+The daily Upstox token is now just `env.UPSTOX_API_ACCESS_TOKEN` for both
+charts. Update that deploy-time value before the Job or CronJob starts.
+
 Email is still optional. Add `--sendmail` to `helm/reporter/values.yaml` args
-and include `EMAIL_TO`, `EMAIL_FROM`, and `GMAIL_APP_PASSWORD` in the same
-secret only if you want the report emailed too. `EMAIL_TO` can contain one
+and provide `env.EMAIL_TO`, `env.EMAIL_FROM`, and `env.GMAIL_APP_PASSWORD` only
+if you want the report emailed too. `EMAIL_TO` can contain one
 recipient or a comma-separated list, for example `a@a.com,b@b.com`.
 
 ```bash
