@@ -70,9 +70,6 @@ spec:
                       key: SLACK_CHANNEL_ID
                 {{- end }}
               {{- end }}
-              envFrom:
-                - secretRef:
-                    name: {{ .Values.secret.name | quote }}
               {{- if and .Values.pvc .Values.pvc.enabled }}
               volumeMounts:
                 - name: reporter-data

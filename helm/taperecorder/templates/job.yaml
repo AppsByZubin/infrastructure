@@ -33,10 +33,6 @@ spec:
               value: "{{ $v }}"
             {{- end }}
 
-          envFrom:
-            - secretRef:
-                name: taperecorder-secrets
-
           volumeMounts:
             - name: data
               mountPath: /app/data
