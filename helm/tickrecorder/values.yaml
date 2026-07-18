@@ -1,6 +1,6 @@
 image:
   repository: docker.io/bizzkpm/tickrecorder
-  tag: "latest"
+  tag: "sha-9dfe50c"
   pullPolicy: Always
 
 # ArgoCD should set this to $ARGOCD_APP_REVISION so a new rendered revision
