@@ -3,6 +3,10 @@ image:
   tag: "sha-9dfe50c"
   pullPolicy: Always
 
+# Leave empty for the public Docker Hub repository. The production deployment
+# script sets this when DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are provided.
+imagePullSecrets: []
+
 # ArgoCD should set this to $ARGOCD_APP_REVISION so a new rendered revision
 # replaces and reruns the one-shot Job, matching taperecorder.
 restartRevision: ""
@@ -15,9 +19,9 @@ env:
   TZ: Asia/Kolkata
 
   # Required exact FYERS symbols. Override this before deploying.
-  FYERS_SYMBOLS: ""
-  FYERS_APP_ID: ""
-  FYERS_ACCESS_TOKEN: ""
+  FYERS_SYMBOLS: 'NSE:SBIN-EQ,NSE:RELIANCE-EQ'
+  FYERS_APP_ID: "312LB7M2BK-100"
+  FYERS_ACCESS_TOKEN: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiZDoxIiwiZDoyIiwieDowIiwieDoxIiwieDoyIl0sImF0X2hhc2giOiJnQUFBQUFCcVcxTlNfT1NNaE84QUZlOE9hbWVFUmZiSjZoaHhUWHJmWm8yYjFTZUNFVnBTemZJOXg0cldtbGpXc1R2V0twZnp6elBnU1dFcDJzNmEwdmNkQnNORWNFZDJ6eDFlakZ1SzQwUFBSWnl5Mzk5NEM4OD0iLCJkaXNwbGF5X25hbWUiOiIiLCJvbXMiOiJLMSIsImhzbV9rZXkiOiI5NmRiMzVjMmIwZDk2MmJhNDQxNjhhNDk3ZmEyNjI3ZWU0YWRhNjg1MTRmMDA4NDc3MTNjM2MxNyIsImlzRGRwaUVuYWJsZWQiOiJOIiwiaXNNdGZFbmFibGVkIjoiTiIsImZ5X2lkIjoiRkFLMDkxMzkiLCJhcHBUeXBlIjoxMDAsImV4cCI6MTc4NDQyMTAwMCwiaWF0IjoxNzg0MzcwMDAyLCJpc3MiOiJhcGkuZnllcnMuaW4iLCJuYmYiOjE3ODQzNzAwMDIsInN1YiI6ImFjY2Vzc190b2tlbiJ9.6Pqik46XjCtOKMxqxGjMFkXwe3RBaeI6MTyCzLJq88w"
   FYERS_TBT_CHANNEL: "1"
 
   TICKRECORDER_DATA_DIR: /app/data
@@ -31,8 +35,8 @@ env:
   DO_S3_REGION: "sgp1"
   DO_S3_BUCKET_NAME: "index-bucket"
   DO_S3_SPACES_PREFIX: "index-bucket-holder/contracts"
-  DO_S3_ACCESS_KEY_ID: ""
-  DO_S3_SECRET_ACCESS_KEY: ""
+  DO_S3_ACCESS_KEY_ID: "DO00HTRKUMPEG449UQQF"
+  DO_S3_SECRET_ACCESS_KEY: "ylqc648Tf6pIyx+VAGQYYqfLJk6ck7sD8Z4tdZPjRk0"
 
 resources:
   requests:

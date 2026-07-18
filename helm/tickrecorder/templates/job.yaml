@@ -21,6 +21,11 @@ spec:
       restartPolicy: Never
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
 
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+
       containers:
         - name: tickrecorder
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
