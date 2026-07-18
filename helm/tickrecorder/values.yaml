@@ -50,4 +50,4 @@ pvc:
   enabled: true
   claimName: tickrecorder-data
   size: 20Gi
-  accessMode: ReadWriteOncePod
+  accessMode: ReadWriteOnce
