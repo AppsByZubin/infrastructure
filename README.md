@@ -21,14 +21,35 @@ Shared infrastructure Helm charts live under `infrastructure/helm/`. Project-own
 The repo currently carries Helm charts for:
 
 - `helm/taperecorder`: market data recorder Job and optional PVC
+- `helm/tickrecorder`: FYERS trade-tick recorder Job, PVC, and verified DigitalOcean upload
 - `helm/reporter`: daily trade report CronJob scheduled for 8:17 PM IST
 
-The `taperecorder` Job is annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates the Job during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns the Job without manually deleting it first.
+The `taperecorder` and `tickrecorder` Jobs are annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates them during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns a Job without manually deleting it first. Tickrecorder owns market timing in application code rather than in a Kubernetes CronJob.
 
 The `reporter` and `taperecorder` charts pass most runtime values directly
 through their `env:` blocks in `values.yaml`. The reporter Slack delivery values
 are the exception: `SLACK_BOT_TOKEN` and `SLACK_CHANNEL_ID` come from a
 Kubernetes Secret named `reporter-slack-secrets`.
+
+The tickrecorder chart passes FYERS and DigitalOcean credentials as container
+environment variables, matching taperecorder's Helm pattern. Keep the committed
+defaults empty and provide real values only while installing the chart:
+
+```bash
+helm upgrade --install tickrecorder helm/tickrecorder \
+  --namespace botspace \
+  --set-string env.FYERS_SYMBOLS="$FYERS_SYMBOLS" \
+  --set-string env.FYERS_APP_ID="$FYERS_APP_ID" \
+  --set-string env.FYERS_ACCESS_TOKEN="$FYERS_ACCESS_TOKEN" \
+  --set-string env.DO_S3_ACCESS_KEY_ID="$DO_S3_ACCESS_KEY_ID" \
+  --set-string env.DO_S3_SECRET_ACCESS_KEY="$DO_S3_SECRET_ACCESS_KEY"
+```
+
+The Job may be triggered before market open, for example at 08:00. Tickrecorder
+waits in-process until 09:15 Asia/Kolkata, opens the FYERS WebSockets, records
+until 15:31, then disconnects, drains Parquet files, creates the date archive,
+and uploads it to DigitalOcean Spaces. The pod's termination grace period covers
+Parquet drain, gzip creation, Spaces upload, and full read-back checksum verification.
 
 The reporter CronJob uploads to Slack by default. `SLACK_BOT_TOKEN` needs the
 Slack `files:write` scope, and the app must be invited to `SLACK_CHANNEL_ID`.
@@ -62,7 +83,19 @@ recipient or a comma-separated list, for example `a@a.com,b@b.com`.
 
 ```bash
 helm lint helm/taperecorder
+helm lint helm/tickrecorder \
+  --set-string env.FYERS_SYMBOLS=NSE:TEST-EQ \
+  --set-string env.FYERS_APP_ID=test-app-100 \
+  --set-string env.FYERS_ACCESS_TOKEN=test-token \
+  --set-string env.DO_S3_ACCESS_KEY_ID=test-key \
+  --set-string env.DO_S3_SECRET_ACCESS_KEY=test-secret
 helm lint helm/reporter
+helm template tickrecorder helm/tickrecorder --namespace botspace \
+  --set-string env.FYERS_SYMBOLS=NSE:TEST-EQ \
+  --set-string env.FYERS_APP_ID=test-app-100 \
+  --set-string env.FYERS_ACCESS_TOKEN=test-token \
+  --set-string env.DO_S3_ACCESS_KEY_ID=test-key \
+  --set-string env.DO_S3_SECRET_ACCESS_KEY=test-secret
 helm template reporter helm/reporter
 ```
 
