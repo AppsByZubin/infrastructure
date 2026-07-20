@@ -10,6 +10,7 @@ ARGO_REPO="${ARGO_REPO:-https://github.com/AppsByZubin/infrastructure.git}"
 ARGO_REVISION="${ARGO_REVISION:-main}"
 ARGO_PATH="${ARGO_PATH:-helm/tickrecorder}"
 DEST_SERVER="${DEST_SERVER:-https://kubernetes.default.svc}"
+ARGOCD_NAMESPACE="${ARGOCD_NAMESPACE:-argocd}"
 NAMESPACE="${NAMESPACE:-botspace}"
 SYNC_TIMEOUT_SECONDS="${SYNC_TIMEOUT_SECONDS:-300}"
 IMAGE_PULL_TIMEOUT_SECONDS="${IMAGE_PULL_TIMEOUT_SECONDS:-300}"
@@ -20,33 +21,24 @@ die() {
   exit 1
 }
 
-for command_name in argocd kubectl; do
+for command_name in argocd jq kubectl; do
   command -v "${command_name}" >/dev/null 2>&1 || die "${command_name} is not installed"
-done
-
-for variable_name in \
-  FYERS_SYMBOLS \
-  FYERS_APP_ID \
-  FYERS_ACCESS_TOKEN \
-  DO_S3_ACCESS_KEY_ID \
-  DO_S3_SECRET_ACCESS_KEY; do
-  [[ -n "${!variable_name:-}" ]] || die "${variable_name} is not set"
 done
 
 printf 'Kubernetes context: %s\n' "$(kubectl config current-context)"
 printf 'Argo CD app: %s (%s@%s)\n' "${APP_NAME}" "${ARGO_REPO}" "${ARGO_REVISION}"
 
+# Core mode discovers Argo CD resources in the current kube-context namespace.
+# Configure it explicitly so this script does not depend on a prior CLI login.
+kubectl config set-context --current --namespace="${ARGOCD_NAMESPACE}" >/dev/null
+argocd login --core
+
 # Create the namespace first so an optional private-registry pull secret can be
 # installed before Argo CD creates the Job.
 kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
 
-helm_parameters=(
-  --helm-set-string "env.FYERS_SYMBOLS=${FYERS_SYMBOLS}"
-  --helm-set-string "env.FYERS_APP_ID=${FYERS_APP_ID}"
-  --helm-set-string "env.FYERS_ACCESS_TOKEN=${FYERS_ACCESS_TOKEN}"
-  --helm-set-string "env.DO_S3_ACCESS_KEY_ID=${DO_S3_ACCESS_KEY_ID}"
-  --helm-set-string "env.DO_S3_SECRET_ACCESS_KEY=${DO_S3_SECRET_ACCESS_KEY}"
-)
+# Runtime configuration comes exclusively from the chart's values.yaml.
+helm_parameters=()
 
 # Docker Hub credentials are only needed when bizzkpm/tickrecorder is private.
 # These values must be available on the production host; GitHub Actions secrets
@@ -77,12 +69,35 @@ argocd app create "${APP_NAME}" \
   --self-heal \
   --sync-option CreateNamespace=true \
   --upsert \
+  --core \
   "${helm_parameters[@]}"
 
-# The chart's Job also carries Force=true,Replace=true. Passing the flags here
-# makes a manual production deployment recreate the one-shot Job immediately.
-argocd app sync "${APP_NAME}" --force --replace --assumeYes
-argocd app wait "${APP_NAME}" --sync --timeout "${SYNC_TIMEOUT_SECONDS}"
+# Remove environment overrides left by older versions of this script. These
+# values now come exclusively from the chart's values.yaml in Git.
+for parameter_name in \
+  env.FYERS_SYMBOLS \
+  env.FYERS_APP_ID \
+  env.FYERS_ACCESS_TOKEN \
+  env.DO_S3_ACCESS_KEY_ID \
+  env.DO_S3_SECRET_ACCESS_KEY; do
+  parameter_index="$(
+    kubectl -n "${ARGOCD_NAMESPACE}" get application "${APP_NAME}" -o json |
+      jq --arg name "${parameter_name}" -r \
+        '(.spec.source.helm.parameters // []) | map(.name) | index($name)'
+  )"
+  if [[ "${parameter_index}" != "null" ]]; then
+    kubectl -n "${ARGOCD_NAMESPACE}" patch application "${APP_NAME}" \
+      --type=json \
+      -p="[{\"op\":\"remove\",\"path\":\"/spec/source/helm/parameters/${parameter_index}\"}]"
+  fi
+done
+
+# The Job carries its own Force=true,Replace=true annotation, keeping
+# replacement scoped to the Job rather than the PVC.
+argocd app sync "${APP_NAME}" --assumeYes \
+  --core
+argocd app wait "${APP_NAME}" --sync --timeout "${SYNC_TIMEOUT_SECONDS}" \
+  --core
 
 pod_name=""
 deadline=$((SECONDS + IMAGE_PULL_TIMEOUT_SECONDS))
