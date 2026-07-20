@@ -6,9 +6,10 @@ metadata:
   labels:
     app: taperecorder
   annotations:
-    # Recreate the Kubernetes Job on every ArgoCD sync so a new push reruns it.
+    # Scope replacement to taperecorder's chart version. Repository commits for
+    # other applications must not rerun this Job.
     argocd.argoproj.io/sync-options: Force=true,Replace=true
-    appsbyzubin.com/restart-revision: {{ .Values.restartRevision | default .Chart.Version | quote }}
+    appsbyzubin.com/restart-revision: {{ .Chart.Version | quote }}
 spec:
   backoffLimit: 0
   # Optional: Delete the job 24 hours after completion

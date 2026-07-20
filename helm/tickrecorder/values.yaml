@@ -7,10 +7,6 @@ image:
 # script sets this when DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are provided.
 imagePullSecrets: []
 
-# ArgoCD should set this to $ARGOCD_APP_REVISION so a new rendered revision
-# replaces and reruns the one-shot Job, matching taperecorder.
-restartRevision: ""
-
 # Must cover socket shutdown, Parquet drain, gzip creation, Spaces upload,
 # and full read-back checksum verification before Kubernetes sends SIGKILL.
 terminationGracePeriodSeconds: 1800

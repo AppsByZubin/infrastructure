@@ -24,7 +24,10 @@ The repo currently carries Helm charts for:
 - `helm/tickrecorder`: FYERS trade-tick recorder Job, PVC, and verified DigitalOcean upload
 - `helm/reporter`: daily trade report CronJob scheduled for 8:17 PM IST
 
-The `taperecorder` and `tickrecorder` Jobs are annotated with `Force=true,Replace=true` so ArgoCD deletes and recreates them during sync. With automated sync enabled, pushing a rendered Helm change to `main` reruns a Job without manually deleting it first. Tickrecorder owns market timing in application code rather than in a Kubernetes CronJob.
+The `taperecorder` and `tickrecorder` Jobs are annotated with
+`Force=true,Replace=true` so ArgoCD deletes and recreates them when their own
+rendered Job changes. Each restart annotation uses that chart's version, so a
+version bump in one recorder does not rerun the other recorder. Tickrecorder owns market timing in application code rather than in a Kubernetes CronJob.
 
 The `reporter` and `taperecorder` charts pass most runtime values directly
 through their `env:` blocks in `values.yaml`. The reporter Slack delivery values

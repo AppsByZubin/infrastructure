@@ -6,10 +6,10 @@ metadata:
   labels:
     app: tickrecorder
   annotations:
-    # Match taperecorder: a sync replaces the one-shot Job. Trading-session
-    # timing remains inside tickrecorder rather than Kubernetes.
+    # Scope replacement to tickrecorder's chart version. Repository commits for
+    # other applications must not rerun this Job.
     argocd.argoproj.io/sync-options: Force=true,Replace=true
-    appsbyzubin.com/restart-revision: {{ .Values.restartRevision | default .Chart.Version | quote }}
+    appsbyzubin.com/restart-revision: {{ .Chart.Version | quote }}
 spec:
   backoffLimit: 0
 
