@@ -1,6 +1,6 @@
 image:
   repository: docker.io/bizzkpm/tickrecorder
-  tag: "sha-9dfe50c"
+  tag: "sha-ff6d333"
   pullPolicy: Always
 
 # Leave empty for the public Docker Hub repository. The production deployment
