@@ -2,5 +2,5 @@ apiVersion: v2
 name: taperecorder
 description: Taperecorder market data recorder
 type: application
-version: 0.1.236
+version: 0.1.237
 appVersion: "1.0"
