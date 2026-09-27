@@ -34,11 +34,6 @@ env:
   UPSTOX_ORDER_DETAILS_PATH: /v2/order/details
   UPSTOX_API_TIMEOUT_SECONDS: "30"
   UPSTOX_API_ACCESS_TOKEN: "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiI3QkFYVDYiLCJqdGkiOiI2YWI1ZTI1MDNkNzU3NDM3YzllMjQ1MTMiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6dHJ1ZSwiaWF0IjoxNzkwMzA0ODQ4LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3OTAzNzM2MDB9.H2UgHMrTNdx70DE4HBkAiSf8C7BNb-J4kLTKM_n7joY"
-  DO_S3_REGION: "sgp1"
-  DO_S3_ACCESS_KEY_ID: "DO00HTRKUMPEG449UQQF"
-  DO_S3_SECRET_ACCESS_KEY: "ylqc648Tf6pIyx+VAGQYYqfLJk6ck7sD8Z4tdZPjRk0"
-  DO_S3_BUCKET_NAME: "index-bucket"
-  DO_S3_ENDPOINT_URL: "https://sgp1.digitaloceanspaces.com"
   # CloudPE endpoint for the same bucket the bots write to. Non-secret, so it
   # belongs here; the two credentials come from s3Secret below.
   CLOUDPE_S3_ENDPOINT_URL: "https://s3.in-west2.purestore.io"
@@ -49,8 +44,9 @@ env:
   GMAIL_APP_PASSWORD: ""
 
 # CloudPE S3 credentials. The Secret is created out of band by
-# botyard/scripts/add_cloudpe_s3_secrets.sh so the keys never land in git, and
-# the reference is optional so the CronJob still starts before it exists.
+# botyard/scripts/add_cloudpe_s3_secrets.sh so the keys never land in git.
+# It must exist before the CronJob runs and contain CLOUDPE_S3_ACCESS_KEY_ID
+# and CLOUDPE_S3_SECRET_ACCESS_KEY.
 # Reporter reads the bot artifacts that carry the order ids, so it has to point
 # at the same bucket the bots write to.
 s3Secret:
