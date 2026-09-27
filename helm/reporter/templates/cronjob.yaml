@@ -51,6 +51,12 @@ spec:
                 - {{ . | quote }}
                 {{- end }}
               {{- end }}
+              {{- if and .Values.s3Secret .Values.s3Secret.enabled .Values.s3Secret.name }}
+              envFrom:
+                - secretRef:
+                    name: {{ .Values.s3Secret.name | quote }}
+                    optional: true
+              {{- end }}
               {{- with .Values.env }}
               env:
                 {{- range $k, $v := . }}

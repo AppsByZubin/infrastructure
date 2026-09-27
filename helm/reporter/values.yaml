@@ -39,9 +39,23 @@ env:
   DO_S3_SECRET_ACCESS_KEY: "ylqc648Tf6pIyx+VAGQYYqfLJk6ck7sD8Z4tdZPjRk0"
   DO_S3_BUCKET_NAME: "index-bucket"
   DO_S3_ENDPOINT_URL: "https://sgp1.digitaloceanspaces.com"
+  # CloudPE endpoint for the same bucket the bots write to. Non-secret, so it
+  # belongs here; the two credentials come from s3Secret below.
+  CLOUDPE_S3_ENDPOINT_URL: "https://s3.in-west2.purestore.io"
+  CLOUDPE_S3_REGION: "in-west2"
+  CLOUDPE_S3_BUCKET_NAME: "index-bucket"
   EMAIL_TO: ""
   EMAIL_FROM: ""
   GMAIL_APP_PASSWORD: ""
+
+# CloudPE S3 credentials. The Secret is created out of band by
+# botyard/scripts/add_cloudpe_s3_secrets.sh so the keys never land in git, and
+# the reference is optional so the CronJob still starts before it exists.
+# Reporter reads the bot artifacts that carry the order ids, so it has to point
+# at the same bucket the bots write to.
+s3Secret:
+  enabled: true
+  name: reporter-s3-secrets
 
 slackSecret:
   name: reporter-slack-secrets
