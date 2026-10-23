@@ -33,7 +33,7 @@ env:
   UPSTOX_API_BASE_URL: https://api.upstox.com
   UPSTOX_ORDER_DETAILS_PATH: /v2/order/details
   UPSTOX_API_TIMEOUT_SECONDS: "30"
-  UPSTOX_API_ACCESS_TOKEN: "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiI3QkFYVDYiLCJqdGkiOiI2YWQ5NmEzOTYxYWMzMDUxMjlkN2MxOTQiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6dHJ1ZSwiaWF0IjoxNzkyNjMzNDAxLCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3OTI3MDY0MDB9.fjJ8gkfcu2t4yhrcN10nU85b7Mb9IQq36moKAqBlAZc"
+  UPSTOX_API_ACCESS_TOKEN: "eyJ0eXAiOiJKV1QiLCJrZXlfaWQiOiJza192MS4wIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiI3QkFYVDYiLCJqdGkiOiI2YWRhYjNiNDViODFkOTcyM2RhZGM4NTMiLCJpc011bHRpQ2xpZW50IjpmYWxzZSwiaXNQbHVzUGxhbiI6dHJ1ZSwiaWF0IjoxNzkyNzE3NzQ4LCJpc3MiOiJ1ZGFwaS1nYXRld2F5LXNlcnZpY2UiLCJleHAiOjE3OTI3OTI4MDB9.jtfqizM5z1QOeHWLcEEf0Tipvi8-SB8hRl_LemMGXHo"
   # CloudPE endpoint for the same bucket the bots write to. Non-secret, so it
   # belongs here; the two credentials come from s3Secret below.
   CLOUDPE_S3_ENDPOINT_URL: "https://s3.in-west2.purestore.io"
